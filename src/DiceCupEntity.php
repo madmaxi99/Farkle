@@ -142,7 +142,7 @@ class DiceCupEntity
         };
     }
 
-    public function addPoints(int $points): void
+    public function addTmpPoints(int $points): void
     {
         $this->tmpPoints += $points;
     }

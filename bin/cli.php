@@ -3,8 +3,8 @@
 
 declare(strict_types=1);
 
+use Madmaxi\Farkle\command\GamesCommand;
 use Madmaxi\Farkle\PointsService;
-use Madmaxi\Farkle\RollDiceCommand;
 use Madmaxi\Farkle\RoundService;
 use Symfony\Component\Console\Application;
 
@@ -14,7 +14,7 @@ $app = new Application('Farkle');
 
 $roundService = new RoundService();
 $pointsService = new PointsService();
-$rollDiceCommand = new RollDiceCommand($roundService, $pointsService);
+$rollDiceCommand = new GamesCommand($roundService, $pointsService);
 
 
 $app->add($rollDiceCommand);
