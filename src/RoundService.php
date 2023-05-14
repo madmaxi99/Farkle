@@ -6,6 +6,10 @@ namespace Madmaxi\Farkle;
 
 class RoundService
 {
+    public function __construct(private readonly PointsService $pointsService,)
+    {
+    }
+
     const THRESHOLD_POINTS = 600;
     const DICE_LEFT = 1;
     const MINIMUM_POINTS = 400;
@@ -76,5 +80,22 @@ class RoundService
         }
 
         return true;
+    }
+
+    public function doARound(DiceCupEntity $cupEntity): DiceCupEntity
+    {
+        $canThrow = true;
+        while ($canThrow) {
+            $this->throwCup($cupEntity);
+            $pointsDiff = $this->pointsService->calculatePoints($cupEntity);
+            if ($pointsDiff !== 0) {
+                $canThrow = $this->anotherThrow($cupEntity);
+            } else {
+                $canThrow = false;
+                $cupEntity->setTmpPoints(0);
+                $cupEntity->setAllNull();
+            }
+        }
+        return $cupEntity;
     }
 }

@@ -14,11 +14,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'farkle:games')]
-class GamesCommand extends Command
+#[AsCommand(name: 'farkle:rounds')]
+class RoundsCommand extends Command
 {
-    const GAME_WINNING_POINTS = 10000;
-
     public function __construct(
         private readonly RoundService $roundService,
     ) {
@@ -27,43 +25,40 @@ class GamesCommand extends Command
 
     protected function configure()
     {
-        $this->addArgument('games', InputArgument::REQUIRED, 'NUmber of games');
+        $this->addArgument('rounds', InputArgument::REQUIRED, 'NUmber of games');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $games = (int)$input->getArgument('games');
-        $progressBar = new  ProgressBar($output, $games);
+        $rounds = (int)$input->getArgument('rounds');
+        $progressBar = new  ProgressBar($output, 100);
         $progressBar->start();
 
-        $totalRounds = 0;
-        $tp = 0;
-        for ($i = 0; $i < $games; $i++) {
-            $totalPoints = 0;
-            $rounds = 0;
+        $highestPoints = 0;
+        $totalPoints = 0;
+        for ($i = 0; $i < $rounds; $i++) {
             $cupEntity = new DiceCupEntity();
+            $this->roundService->doARound($cupEntity);
 
-            while ($totalPoints <= self::GAME_WINNING_POINTS) {
-                $cupEntity = $this->roundService->doARound($cupEntity);
-
-                $totalPoints += $cupEntity->getPoints();
-                $rounds++;
+            if ($highestPoints < $cupEntity->getPoints()) {
+                $highestPoints = $cupEntity->getPoints();
             }
-            $tp += $totalPoints;
-            $totalRounds += $rounds;
+            $totalPoints += $cupEntity->getPoints();
 
-            $progressBar->advance();
-            $progressBar->display();
+            if ($rounds > 100) {
+                if (($i % ($rounds / 100)) === 0) {
+                    $progressBar->advance();
+                    $progressBar->display();
+                }
+            }
         }
         $progressBar->finish();
 
-
         $conclusion = sprintf(
-            '%s Total Rounds: %s, Avg. Rounds: %s, Avg. Points: %s',
+            '%s Highest Points: %s, Avg. Points: %s',
             PHP_EOL,
-            $totalRounds,
-            $totalRounds / $games,
-            $tp / $totalRounds
+            $highestPoints,
+            $totalPoints / $rounds
         );
         $output->writeln($conclusion);
         return self::SUCCESS;
