@@ -36,7 +36,7 @@ class PointsService
 
         if (count($filterValues) === 6) {
             $cupEntity->setAllNull();
-            $cupEntity->addPoints(1500);
+            $cupEntity->addTmpPoints(1500);
         }
 
         if ($filterValues === self::SMALL_FLUSH_A) {
@@ -47,7 +47,7 @@ class PointsService
                     $bla++;
                 }
             }
-            $cupEntity->addPoints(1000);
+            $cupEntity->addTmpPoints(1000);
         }
 
         if ($filterValues === self::SMALL_FLUSH_B) {
@@ -58,7 +58,7 @@ class PointsService
                     $bla++;
                 }
             }
-            $cupEntity->addPoints(1000);
+            $cupEntity->addTmpPoints(1000);
         }
 
         return $cupEntity;
@@ -88,7 +88,7 @@ class PointsService
             }
         }
         if ($pairs === 3) {
-            $cupEntity->addPoints(1500);
+            $cupEntity->addTmpPoints(1500);
             $cupEntity->setAllNull();
         }
         return $cupEntity;
@@ -103,22 +103,22 @@ class PointsService
                 $eye = 10;
             }
             if ($amount === 6) {
-                $cupEntity->addPoints($eye * self::FACTOR_100 + 3000);
+                $cupEntity->addTmpPoints($eye * self::FACTOR_100 + 3000);
                 $cupEntity->setAllNull();
                 break;
             }
             if ($amount === 5) {
-                $cupEntity->addPoints($eye * self::FACTOR_100 + 2000);
+                $cupEntity->addTmpPoints($eye * self::FACTOR_100 + 2000);
                 $this->setEyeNull($eye, $cupEntity);
                 break;
             }
             if ($amount === 4) {
-                $cupEntity->addPoints($eye * self::FACTOR_100 + 1000);
+                $cupEntity->addTmpPoints($eye * self::FACTOR_100 + 1000);
                 $this->setEyeNull($eye, $cupEntity);
                 break;
             }
             if ($amount === 3) {
-                $cupEntity->addPoints($eye * self::FACTOR_100);
+                $cupEntity->addTmpPoints($eye * self::FACTOR_100);
                 $this->setEyeNull($eye, $cupEntity);
             }
         }
@@ -132,11 +132,11 @@ class PointsService
 
         foreach ($diceValues as $eye => $amount) {
             if ($eye === 1) {
-                $cupEntity->addPoints($amount * self::FACTOR_100);
+                $cupEntity->addTmpPoints($amount * self::FACTOR_100);
                 $this->setEyeNull($eye, $cupEntity);
             }
             if ($eye === 5) {
-                $cupEntity->addPoints($amount * self::FACTOR_50);
+                $cupEntity->addTmpPoints($amount * self::FACTOR_50);
                 $this->setEyeNull($eye, $cupEntity);
             }
         }

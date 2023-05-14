@@ -6,8 +6,9 @@ namespace Madmaxi\Farkle;
 
 class RoundService
 {
-    const MINIMUM_POINTS = 600;
-    const DICE_LEFT = 2;
+    const THRESHOLD_POINTS = 600;
+    const DICE_LEFT = 1;
+    const MINIMUM_POINTS = 400;
 
     public function throwCup(DiceCupEntity $cupEntity)
     {
@@ -49,15 +50,25 @@ class RoundService
         return random_int(1, 6);
     }
 
-    public function anotherRound(int $pointsDiff, DiceCupEntity $cupEntity): bool
+    public function anotherRound(DiceCupEntity $cupEntity): bool
     {
-        if (self::DICE_LEFT >= count($cupEntity->getValuesAsArray())) {
-            $cupEntity->setPoints($pointsDiff);
+        $tmpPoints =$cupEntity->getTmpPoints();
+        if (count($cupEntity->getValuesAsArray()) === 0) {
+            return true;
+        }
+
+        if (count($cupEntity->getValuesAsArray()) <= self::DICE_LEFT &&
+            $tmpPoints >= self::MINIMUM_POINTS) {
+            $cupEntity->setPoints($tmpPoints);
+            $cupEntity->setTmpPoints(0);
+            $cupEntity->setAllNull();
             return false;
         }
 
-        if (self::MINIMUM_POINTS >= $pointsDiff) {
-            $cupEntity->setPoints($pointsDiff);
+        if ($tmpPoints >= self::THRESHOLD_POINTS) {
+            $cupEntity->setPoints($tmpPoints);
+            $cupEntity->setTmpPoints(0);
+            $cupEntity->setAllNull();
             return false;
         }
 
