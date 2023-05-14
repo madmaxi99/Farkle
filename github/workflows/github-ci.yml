@@ -1,0 +1,88 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - develop
+      - master
+
+env:
+  PHP_VERSION: "8.1"
+
+jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Lint check
+        run: |
+          find . -name '*.php' -print0 | xargs -0 -n1 -P4 php -l -n | (! grep -v "No syntax errors detected")
+      - name: Fetch develop branch
+        if: "!contains(github.event.head_commit.message, 'no-changelog') &&github.ref != 'refs/heads/master' && github.ref != 'refs/heads/develop'"
+        run: git fetch origin develop:origin/develop
+      - name: Check new changelog entry
+        if: "!contains(github.event.head_commit.message, 'no-changelog') &&github.ref != 'refs/heads/master' && github.ref != 'refs/heads/develop'"
+        run: |
+          git diff --name-status origin/develop | grep -e '^A\s*changelogs/unreleased/.*\.yml$' ||
+          {
+            echo -e '\e[41mFile for new changelog item is missing. \e[0m\nPlease add it to your branch with \e[1m/vendor/bin/changelogger new -u. \e[0m'
+            exit 1
+          }
+
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup PHP ${{ env.PHP_VERSION }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-scripts
+      - name: Cache vendor directory
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-build-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ hashFiles('**/composer.lock') }}
+            ${{ runner.os }}-build-
+
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup PHP ${{ env.PHP_VERSION }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-scripts
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyze -c phpstan.neon --memory-limit=2G --no-progress
+      - name: Code Style Checks
+        run: vendor/bin/ecs
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup PHP ${{ env.PHP_VERSION }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-scripts
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --coverage-text
+
