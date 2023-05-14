@@ -6,6 +6,7 @@ namespace Madmaxi\Farkle\command;
 
 use Madmaxi\Farkle\DiceCupEntity;
 use Madmaxi\Farkle\RoundService;
+use Madmaxi\Farkle\TableService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -37,6 +38,7 @@ class GamesCommand extends Command
 
         $totalRounds = 0;
         $tp = 0;
+        $pointsArray = [];
         for ($i = 0; $i < $games; $i++) {
             $totalPoints = 0;
             $rounds = 0;
@@ -51,10 +53,24 @@ class GamesCommand extends Command
             $tp += $totalPoints;
             $totalRounds += $rounds;
 
+            $points = $cupEntity->getPoints();
+            if (isset($pointsArray[$points])) {
+                $pointsArray[$points] += 1;
+            } else {
+                $pointsArray[$points] = 1;
+            }
+
             $progressBar->advance();
             $progressBar->display();
         }
         $progressBar->finish();
+
+        $table = TableService::getTable($output);
+        ksort($pointsArray);
+        foreach ($pointsArray as $points => $amount) {
+            $table->addRow([$points, $amount]);
+        }
+        $table->render();
 
         $conclusion = sprintf(
             '%s Total Rounds: %s, Avg. Rounds: %s, Avg. Points: %s',

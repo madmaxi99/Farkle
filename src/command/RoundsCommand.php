@@ -6,6 +6,7 @@ namespace Madmaxi\Farkle\command;
 
 use Madmaxi\Farkle\DiceCupEntity;
 use Madmaxi\Farkle\RoundService;
+use Madmaxi\Farkle\TableService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -35,13 +36,23 @@ class RoundsCommand extends Command
 
         $highestPoints = 0;
         $totalPoints = 0;
+        $pointsArray = [];
         for ($i = 0; $i < $rounds; $i++) {
             $cupEntity = new DiceCupEntity();
             $this->roundService->doARound($cupEntity);
-            if ($highestPoints < $cupEntity->getPoints()) {
-                $highestPoints = $cupEntity->getPoints();
+
+            $points = $cupEntity->getPoints();
+            if ($highestPoints < $points) {
+                $highestPoints = $points;
             }
-            $totalPoints += $cupEntity->getPoints();
+            $totalPoints += $points;
+
+            if (isset($pointsArray[$points])) {
+                $pointsArray[$points] += 1;
+            } else {
+                $pointsArray[$points] = 1;
+            }
+
 
             if ($rounds > 100) {
                 if (($i % ($rounds / 100)) === 0) {
@@ -51,6 +62,13 @@ class RoundsCommand extends Command
             }
         }
         $progressBar->finish();
+
+        $table = TableService::getTable($output);
+        ksort($pointsArray);
+        foreach ($pointsArray as $points => $amount) {
+            $table->addRow([$points, $amount]);
+        }
+        $table->render();
 
         $conclusion = sprintf(
             '%s Highest Points: %s, Avg. Points: %s',
