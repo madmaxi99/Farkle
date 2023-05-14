@@ -125,16 +125,22 @@ class PointsService
 
     public function detectSingle(DiceCupEntity $cupEntity): DiceCupEntity
     {
-        $diceValues = $this->invertArray($cupEntity->getValuesAsArray());
+        $diceValues = $cupEntity->getValuesAsArray();
+        $diceValues = $this->invertArray($diceValues);
 
         foreach ($diceValues as $eye => $amount) {
             if ($eye === 1) {
                 $cupEntity->addTmpPoints($amount * self::FACTOR_100);
                 $this->setEyeNull($eye, $cupEntity);
             }
-            if ($eye === 5) {
-                $cupEntity->addTmpPoints($amount * self::FACTOR_50);
-                $this->setEyeNull($eye, $cupEntity);
+            if ($eye === 5 && $cupEntity->getTmpPoints() < 100) {
+                $cupEntity->addTmpPoints(self::FACTOR_50);
+                foreach ($diceValues as $dice => $value) {
+                    if ($value === 5) {
+                        $cupEntity->{'set' . ($dice)}(null);
+                        break;
+                    }
+                }
             }
         }
         return $cupEntity;

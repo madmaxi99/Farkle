@@ -9,6 +9,7 @@ class RoundService
     const THRESHOLD_POINTS = 600;
     const DICE_LEFT = 1;
     const MINIMUM_POINTS = 400;
+    const MINIMUM_DICE_LEFT = 3;
 
     public function throwCup(DiceCupEntity $cupEntity)
     {
@@ -52,12 +53,13 @@ class RoundService
 
     public function anotherThrow(DiceCupEntity $cupEntity): bool
     {
-        $tmpPoints =$cupEntity->getTmpPoints();
-        if (count($cupEntity->getValuesAsArray()) === 0) {
+        $tmpPoints = $cupEntity->getTmpPoints();
+        $amountDice = count($cupEntity->getValuesAsArray());
+        if ($amountDice === 0) {
             return true;
         }
 
-        if (count($cupEntity->getValuesAsArray()) <= self::DICE_LEFT &&
+        if ($amountDice <= self::DICE_LEFT &&
             $tmpPoints >= self::MINIMUM_POINTS) {
             $cupEntity->setPoints($tmpPoints);
             $cupEntity->setTmpPoints(0);
@@ -65,7 +67,8 @@ class RoundService
             return false;
         }
 
-        if ($tmpPoints >= self::THRESHOLD_POINTS) {
+        if ($tmpPoints >= self::THRESHOLD_POINTS &&
+            $amountDice >= self::MINIMUM_DICE_LEFT) {
             $cupEntity->setPoints($tmpPoints);
             $cupEntity->setTmpPoints(0);
             $cupEntity->setAllNull();
