@@ -17,10 +17,8 @@ class PointsService
     {
         $valuesAsArray = $cupEntity->getValuesAsArray();
         $points = $cupEntity->getTmpPoints();
-        if (count($valuesAsArray) === 6) {
-            $this->detectFlush($cupEntity);
-            $this->detectTriplePairs($cupEntity);
-        }
+        $this->detectFlush($cupEntity);
+        $this->detectTriplePairs($cupEntity);
         $this->detectMultiple($cupEntity);
         $this->detectSingle($cupEntity);
 
@@ -30,8 +28,8 @@ class PointsService
     public function detectFlush(DiceCupEntity $cupEntity): DiceCupEntity
     {
         $diceValues = $cupEntity->getValuesAsArray();
-
         asort($diceValues);
+
         $filterValues = array_values(array_unique($diceValues));
 
         if (count($filterValues) === 6) {
@@ -97,7 +95,6 @@ class PointsService
     public function detectMultiple(DiceCupEntity $cupEntity): DiceCupEntity
     {
         $diceValues = $this->invertArray($cupEntity->getValuesAsArray());
-        $points = 0;
         foreach ($diceValues as $eye => $amount) {
             if ($eye === 1) {
                 $eye = 10;

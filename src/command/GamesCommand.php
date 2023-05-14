@@ -36,7 +36,7 @@ class GamesCommand extends Command
             $this->roundService->throwCup($cupEntity);
             $pointsDiff = $this->pointsService->calculatePoints($cupEntity);
             if ($pointsDiff !== 0) {
-                $canThrow = $this->roundService->anotherRound($cupEntity);
+                $canThrow = $this->roundService->anotherThrow($cupEntity);
             } else {
                 $canThrow = false;
                 $cupEntity->setTmpPoints(0);

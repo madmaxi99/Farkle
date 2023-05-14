@@ -50,7 +50,7 @@ class RoundService
         return random_int(1, 6);
     }
 
-    public function anotherRound(DiceCupEntity $cupEntity): bool
+    public function anotherThrow(DiceCupEntity $cupEntity): bool
     {
         $tmpPoints =$cupEntity->getTmpPoints();
         if (count($cupEntity->getValuesAsArray()) === 0) {
