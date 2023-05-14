@@ -6,14 +6,15 @@ namespace Madmaxi\Farkle;
 
 class RoundService
 {
-    public function __construct(private readonly PointsService $pointsService,)
-    {
+    public function __construct(
+        private readonly PointsService $pointsService,
+    ) {
     }
 
-    const THRESHOLD_POINTS = 600;
-    const DICE_LEFT = 1;
-    const MINIMUM_POINTS = 400;
-    const MINIMUM_DICE_LEFT = 3;
+    public const THRESHOLD_POINTS = 600;
+    public const DICE_LEFT = 1;
+    public const MINIMUM_POINTS = 400;
+    public const MINIMUM_DICE_LEFT = 3;
 
     public function throwCup(DiceCupEntity $cupEntity)
     {
@@ -28,22 +29,22 @@ class RoundService
             return $cupEntity;
         }
 
-        if (!empty($cupEntity->getDice1())) {
+        if (! empty($cupEntity->getDice1())) {
             $cupEntity->setDice1($this->throw());
         }
-        if (!empty($cupEntity->getDice2())) {
+        if (! empty($cupEntity->getDice2())) {
             $cupEntity->setDice2($this->throw());
         }
-        if (!empty($cupEntity->getDice3())) {
+        if (! empty($cupEntity->getDice3())) {
             $cupEntity->setDice3($this->throw());
         }
-        if (!empty($cupEntity->getDice4())) {
+        if (! empty($cupEntity->getDice4())) {
             $cupEntity->setDice4($this->throw());
         }
-        if (!empty($cupEntity->getDice5())) {
+        if (! empty($cupEntity->getDice5())) {
             $cupEntity->setDice5($this->throw());
         }
-        if (!empty($cupEntity->getDice6())) {
+        if (! empty($cupEntity->getDice6())) {
             $cupEntity->setDice6($this->throw());
         }
 

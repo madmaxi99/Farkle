@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Madmaxi\Farkle\command;
 
 use Madmaxi\Farkle\DiceCupEntity;
-use Madmaxi\Farkle\PointsService;
 use Madmaxi\Farkle\RoundService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -30,8 +29,8 @@ class RoundsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $rounds = (int)$input->getArgument('rounds');
-        $progressBar = new  ProgressBar($output, 100);
+        $rounds = (int) $input->getArgument('rounds');
+        $progressBar = new ProgressBar($output, 100);
         $progressBar->start();
 
         $highestPoints = 0;
@@ -39,7 +38,6 @@ class RoundsCommand extends Command
         for ($i = 0; $i < $rounds; $i++) {
             $cupEntity = new DiceCupEntity();
             $this->roundService->doARound($cupEntity);
-
             if ($highestPoints < $cupEntity->getPoints()) {
                 $highestPoints = $cupEntity->getPoints();
             }

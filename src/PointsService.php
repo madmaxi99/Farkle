@@ -6,12 +6,11 @@ namespace Madmaxi\Farkle;
 
 class PointsService
 {
-
-    const SMALL_FLUSH_A = [1, 2, 3, 4, 5];
-    const SMALL_FLUSH_B = [2, 3, 4, 5, 6];
-    const BIG_FLUSH = [1, 2, 3, 4, 5, 6];
-    const FACTOR_100 = 100;
-    const FACTOR_50 = 50;
+    public const SMALL_FLUSH_A = [1, 2, 3, 4, 5];
+    public const SMALL_FLUSH_B = [2, 3, 4, 5, 6];
+    public const BIG_FLUSH = [1, 2, 3, 4, 5, 6];
+    public const FACTOR_100 = 100;
+    public const FACTOR_50 = 50;
 
     public function calculatePoints(DiceCupEntity $cupEntity): int
     {
@@ -66,7 +65,7 @@ class PointsService
     {
         $count = [];
         foreach ($dices as $dice) {
-            if (!isset($count[$dice])) {
+            if (! isset($count[$dice])) {
                 $count[$dice] = 1;
             } else {
                 $count[$dice]++;
