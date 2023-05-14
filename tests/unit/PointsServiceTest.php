@@ -78,8 +78,8 @@ class PointsServiceTest extends TestCase
     {
         return [
             [(new DiceCupEntity())->setDice1(3)->setDice2(3)->setDice3(3)->setDice4(3)->setDice5(3)->setDice6(1),(new DiceCupEntity())->setDice1(3)->setDice2(3)->setDice3(3)->setDice4(3)->setDice5(3)->setDice6(null)->setTmpPoints(100)],
-            [(new DiceCupEntity())->setDice1(3)->setDice2(5)->setDice3(3)->setDice4(1)->setDice5(3)->setDice6(1),(new DiceCupEntity())->setDice1(3)->setDice2(null)->setDice3(3)->setDice4(null)->setDice5(3)->setDice6(null)->setTmpPoints(250)],
-            [(new DiceCupEntity())->setDice1(1)->setDice2(3)->setDice3(4)->setDice4(5)->setDice5(3)->setDice6(5)->setTmpPoints(500),(new DiceCupEntity())->setDice1(null)->setDice2(3)->setDice3(4)->setDice4(null)->setDice5(3)->setDice6(null)->setTmpPoints(700)],
+            [(new DiceCupEntity())->setDice1(3)->setDice2(5)->setDice3(3)->setDice4(1)->setDice5(3)->setDice6(1),(new DiceCupEntity())->setDice1(3)->setDice2(5)->setDice3(3)->setDice4(null)->setDice5(3)->setDice6(null)->setTmpPoints(200)],
+            [(new DiceCupEntity())->setDice1(1)->setDice2(3)->setDice3(4)->setDice4(5)->setDice5(3)->setDice6(5)->setTmpPoints(500),(new DiceCupEntity())->setDice1(null)->setDice2(3)->setDice3(4)->setDice4(5)->setDice5(3)->setDice6(5)->setTmpPoints(600)],
             [(new DiceCupEntity())->setDice1(3)->setDice2(4)->setDice3(3)->setDice4(4)->setDice5(6)->setDice6(6),(new DiceCupEntity())->setDice1(3)->setDice2(4)->setDice3(3)->setDice4(4)->setDice5(6)->setDice6(6)],
         ];
     }
