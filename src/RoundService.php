@@ -18,7 +18,7 @@ class RoundService
      * Point Threshold
      * Dice left
      * Ignore triple 2
-     *
+     * Ignore 50
      */
 
     public function doARound(DiceCupEntity $cupEntity): int
