@@ -11,17 +11,19 @@ class PointsService
     public const BIG_FLUSH = [1, 2, 3, 4, 5, 6];
     public const FACTOR_100 = 100;
     public const FACTOR_50 = 50;
+    const TRIPLE_TWO_POINTS = 200;
 
-    public function calculatePoints(DiceCupEntity $cupEntity): int
+    public function calculatePoints(DiceCupEntity $cupEntity)
     {
-        $valuesAsArray = $cupEntity->getValuesAsArray();
-        $points = $cupEntity->getTmpPoints();
+        $startPoints = $cupEntity->getTmpPoints();
         $this->detectFlush($cupEntity);
         $this->detectTriplePairs($cupEntity);
         $this->detectMultiple($cupEntity);
-        $this->detectSingle($cupEntity);
-
-        return $cupEntity->getTmpPoints() - $points;
+        $this->detectSingle($cupEntity, $startPoints);
+        if ($startPoints === $cupEntity->getTmpPoints()) {
+            $this->detectTripleTwo($cupEntity);
+        }
+        return $cupEntity;
     }
 
     public function detectFlush(DiceCupEntity $cupEntity): DiceCupEntity
@@ -65,7 +67,7 @@ class PointsService
     {
         $count = [];
         foreach ($dices as $dice) {
-            if (! isset($count[$dice])) {
+            if (!isset($count[$dice])) {
                 $count[$dice] = 1;
             } else {
                 $count[$dice]++;
@@ -113,7 +115,7 @@ class PointsService
                 $this->setEyeNull($eye, $cupEntity);
                 break;
             }
-            if ($amount === 3) {
+            if ($amount === 3 && $eye !== 2) {
                 $cupEntity->addTmpPoints($eye * self::FACTOR_100);
                 $this->setEyeNull($eye, $cupEntity);
             }
@@ -122,23 +124,34 @@ class PointsService
         return $cupEntity;
     }
 
-    public function detectSingle(DiceCupEntity $cupEntity): DiceCupEntity
+    public function detectSingle(DiceCupEntity $cupEntity, int $startPoints): DiceCupEntity
     {
-        $diceValues = $cupEntity->getValuesAsArray();
-        $diceValues = $this->invertArray($diceValues);
+        $valuesAsArray = $cupEntity->getValuesAsArray();
+        $diceValues = $this->invertArray($valuesAsArray);
+
+        $allowedKeys = [1, 5];
+        $diffKeys = array_diff_key($diceValues, array_flip($allowedKeys));
+        $moreThan1And5 = count($diffKeys) > 0;
+
 
         foreach ($diceValues as $eye => $amount) {
             if ($eye === 1) {
                 $cupEntity->addTmpPoints($amount * self::FACTOR_100);
                 $this->setEyeNull($eye, $cupEntity);
             }
-            if ($eye === 5 && $cupEntity->getTmpPoints() < 100) {
-                $cupEntity->addTmpPoints(self::FACTOR_50);
-                foreach ($diceValues as $dice => $value) {
-                    if ($value === 5) {
-                        $cupEntity->{'set' . ($dice)}(null);
-                        break;
+            if ($eye === 5) {
+                if ($cupEntity->getTmpPoints() === $startPoints && $moreThan1And5) {
+                    $cupEntity->addTmpPoints(self::FACTOR_50);
+                    foreach ($valuesAsArray as $dice => $value) {
+                        if ($value === 5) {
+                            $cupEntity->{'set' . ($dice)}(null);
+                            break;
+                        }
                     }
+                }
+                if (!$moreThan1And5) {
+                    $cupEntity->addTmpPoints($amount * self::FACTOR_50);
+                    $this->setEyeNull($eye, $cupEntity);
                 }
             }
         }
@@ -156,5 +169,40 @@ class PointsService
                 $cupEntity->{'set' . ($dice)}(null);
             }
         }
+    }
+
+    public function detectTripleTwo(DiceCupEntity $cupEntity): DiceCupEntity
+    {
+        $diceValues = $this->invertArray($cupEntity->getValuesAsArray());
+        foreach ($diceValues as $eye => $amount) {
+            if ($eye !== 2) {
+                continue;
+            }
+            if ($amount === 3) {
+                $cupEntity->addTmpPoints(self::TRIPLE_TWO_POINTS);
+                $this->setEyeNull($eye, $cupEntity);
+            }
+        }
+
+        return $cupEntity;
+    }
+
+    public static function pointsArray(array $pointsArray, $points)
+    {
+        if (isset($pointsArray[$points])) {
+            $pointsArray[$points] += 1;
+        } else {
+            $pointsArray[$points] = 1;
+        }
+
+        return $pointsArray;
+    }
+
+    public static function highestPoints(int $highScore, int $newScore)
+    {
+        if ($highScore < $newScore) {
+            $highScore = $newScore;
+        }
+        return $highScore;
     }
 }

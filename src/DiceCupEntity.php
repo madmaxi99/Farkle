@@ -156,4 +156,11 @@ class DiceCupEntity
         $this->dice5 = null;
         $this->dice6 = null;
     }
+
+    public function softResetCup(): self
+    {
+        $this->tmpPoints = 0;
+        $this->setAllNull();
+        return $this;
+    }
 }

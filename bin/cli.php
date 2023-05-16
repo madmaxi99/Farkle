@@ -7,6 +7,7 @@ use Madmaxi\Farkle\command\GamesCommand;
 use Madmaxi\Farkle\command\RoundsCommand;
 use Madmaxi\Farkle\PointsService;
 use Madmaxi\Farkle\RoundService;
+use Madmaxi\Farkle\Service\ThrowService;
 use Symfony\Component\Console\Application;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -14,7 +15,8 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = new Application('Farkle');
 
 $pointsService = new PointsService();
-$roundService = new RoundService($pointsService);
+$throwService = new ThrowService();
+$roundService = new RoundService($pointsService, $throwService);
 $gamesCommand = new GamesCommand($roundService);
 $roundsCommand = new RoundsCommand($roundService);
 
