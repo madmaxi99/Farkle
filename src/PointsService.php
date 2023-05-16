@@ -63,7 +63,7 @@ class PointsService
         return $cupEntity;
     }
 
-    public static function invertArray(array $dices): array
+    public function invertArray(array $dices): array
     {
         $count = [];
         foreach ($dices as $dice) {
@@ -79,7 +79,7 @@ class PointsService
 
     public function detectTriplePairs(DiceCupEntity $cupEntity): DiceCupEntity
     {
-        $diceValues = self::invertArray($cupEntity->getValuesAsArray());
+        $diceValues = $this->invertArray($cupEntity->getValuesAsArray());
         $pairs = 0;
         foreach ($diceValues as $amount) {
             if ($amount === 2) {
@@ -95,7 +95,7 @@ class PointsService
 
     public function detectMultiple(DiceCupEntity $cupEntity): DiceCupEntity
     {
-        $diceValues = self::invertArray($cupEntity->getValuesAsArray());
+        $diceValues = $this->invertArray($cupEntity->getValuesAsArray());
         foreach ($diceValues as $eye => $amount) {
             if ($eye === 1) {
                 $eye = 10;
@@ -127,7 +127,7 @@ class PointsService
     public function detectSingle(DiceCupEntity $cupEntity, int $startPoints): DiceCupEntity
     {
         $valuesAsArray = $cupEntity->getValuesAsArray();
-        $diceValues = self::invertArray($valuesAsArray);
+        $diceValues = $this->invertArray($valuesAsArray);
 
         $allowedKeys = [1, 5];
         $diffKeys = array_diff_key($diceValues, array_flip($allowedKeys));
@@ -172,7 +172,7 @@ class PointsService
 
     public function detectTripleTwo(DiceCupEntity $cupEntity): DiceCupEntity
     {
-        $diceValues = self::invertArray($cupEntity->getValuesAsArray());
+        $diceValues = $this->invertArray($cupEntity->getValuesAsArray());
         foreach ($diceValues as $eye => $amount) {
             if ($eye !== 2) {
                 continue;
