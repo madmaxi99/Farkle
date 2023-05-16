@@ -31,10 +31,17 @@ class ThrowCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $throws = (int)$input->getArgument('throws');
+        $throws = (int) $input->getArgument('throws');
         $progressBar = ProgressbarService::getProgressbar($output);
 
-        $totalThrown = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0];
+        $totalThrown = [
+            1 => 0,
+            2 => 0,
+            3 => 0,
+            4 => 0,
+            5 => 0,
+            6 => 0,
+        ];
 
         for ($i = 0; $i < $throws; $i++) {
             $cupEntity = new DiceCupEntity();
@@ -51,15 +58,11 @@ class ThrowCommand extends Command
         $progressBar->finish();
         $output->writeln(PHP_EOL);
 
-        $table = TableService::getTable($output, [1,2,3,4,5,6]);
+        $table = TableService::getTable($output, [1, 2, 3, 4, 5, 6]);
         $table->addRow($totalThrown);
         $table->render();
 
-
-        $conclusion = sprintf(
-            '%s',
-            PHP_EOL
-        );
+        $conclusion = sprintf('%s', PHP_EOL);
         $output->writeln($conclusion);
         return self::SUCCESS;
     }
