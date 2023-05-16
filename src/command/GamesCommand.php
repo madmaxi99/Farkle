@@ -33,8 +33,7 @@ class GamesCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $games = (int) $input->getArgument('games');
-        $progressBar = new ProgressBar($output, $games);
-        $progressBar->start();
+        $progressBar = ProgressbarService::getProgressbar($output, $games);
 
         $totalRounds = 0;
         $tp = 0;
@@ -53,15 +52,7 @@ class GamesCommand extends Command
             $tp += $totalPoints;
             $totalRounds += $rounds;
 
-            $points = $cupEntity->getPoints();
-            if (isset($pointsArray[$points])) {
-                $pointsArray[$points] += 1;
-            } else {
-                $pointsArray[$points] = 1;
-            }
-
-            $progressBar->advance();
-            $progressBar->display();
+            ProgressbarService::nextRound($games, $i, $progressBar);
         }
         $progressBar->finish();
 

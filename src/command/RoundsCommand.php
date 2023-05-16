@@ -31,8 +31,7 @@ class RoundsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $rounds = (int) $input->getArgument('rounds');
-        $progressBar = new ProgressBar($output, 100);
-        $progressBar->start();
+        $progressBar = ProgressbarService::getProgressbar($output);
 
         $highestPoints = 0;
         $totalPoints = 0;
@@ -47,19 +46,7 @@ class RoundsCommand extends Command
             }
             $totalPoints += $points;
 
-            if (isset($pointsArray[$points])) {
-                $pointsArray[$points] += 1;
-            } else {
-                $pointsArray[$points] = 1;
-            }
-
-
-            if ($rounds > 100) {
-                if (($i % ($rounds / 100)) === 0) {
-                    $progressBar->advance();
-                    $progressBar->display();
-                }
-            }
+            ProgressbarService::nextRound($rounds, $i, $progressBar);
         }
         $progressBar->finish();
 
