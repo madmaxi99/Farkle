@@ -11,7 +11,6 @@ use Madmaxi\Farkle\Service\ProgressbarService;
 use Madmaxi\Farkle\TableService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -35,7 +34,7 @@ class GamesCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $games = (int) $input->getArgument('games');
-        $progressBar = ProgressbarService::getProgressbar($output, $games);
+        $progressBar = ProgressbarService::getProgressbar($output);
 
         $totalRounds = 0;
         $tp = 0;
@@ -46,7 +45,7 @@ class GamesCommand extends Command
             $cupEntity = new DiceCupEntity();
 
             while ($totalPoints <= self::GAME_WINNING_POINTS) {
-               $points = $this->roundService->doARound($cupEntity);
+                $points = $this->roundService->doARound($cupEntity);
 
                 $totalPoints += $points;
                 $rounds++;

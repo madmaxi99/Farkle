@@ -18,7 +18,7 @@ class ProgressbarService
 
     public static function nextRound(int $rounds, int $i, ProgressBar $progressBar): void
     {
-        $percent =round($rounds / 100);
+        $percent = round($rounds / 100);
         if ($rounds > 100) {
             if (($i % $percent) === 0) {
                 $progressBar->advance();

@@ -40,6 +40,4 @@ class RoundService
 
         return $points;
     }
-
-
 }

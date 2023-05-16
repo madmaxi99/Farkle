@@ -26,15 +26,15 @@ class RoundServiceTest extends TestCase
 
     public function testDoRound()
     {
-            $cupEntity = new DiceCupEntity();
+        $cupEntity = new DiceCupEntity();
 
-            $result = $this->roundService->doARound($cupEntity);
+        $result = $this->roundService->doARound($cupEntity);
 
-            $this->assertIsInt($result);
-            $this->assertEquals(true,$this->assertValueIsValid($result));
+        $this->assertIsInt($result);
+        $this->assertEquals(true, $this->assertValueIsValid($result));
     }
 
-    private function assertValueIsValid(int $value,): bool
+    private function assertValueIsValid(int $value): bool
     {
         if ($value === 0) {
             return true;

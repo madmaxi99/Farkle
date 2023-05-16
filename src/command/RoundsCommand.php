@@ -11,7 +11,6 @@ use Madmaxi\Farkle\Service\ProgressbarService;
 use Madmaxi\Farkle\TableService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -43,9 +42,9 @@ class RoundsCommand extends Command
             $cupEntity = new DiceCupEntity();
             $points = $this->roundService->doARound($cupEntity);
 
-           $pointsArray = PointsService::pointsArray($pointsArray, $points);
-           $highestPoints = PointsService::highestPoints($highestPoints, $points);
-           $totalPoints += $points;
+            $pointsArray = PointsService::pointsArray($pointsArray, $points);
+            $highestPoints = PointsService::highestPoints($highestPoints, $points);
+            $totalPoints += $points;
 
             ProgressbarService::nextRound($rounds, $i, $progressBar);
         }
@@ -69,7 +68,6 @@ class RoundsCommand extends Command
             $highestPoints,
             $totalPoints / $rounds,
             ($zeroGames / $rounds) * 100,
-
         );
         $output->writeln($conclusion);
         return self::SUCCESS;

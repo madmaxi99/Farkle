@@ -11,7 +11,7 @@ class PointsService
     public const BIG_FLUSH = [1, 2, 3, 4, 5, 6];
     public const FACTOR_100 = 100;
     public const FACTOR_50 = 50;
-    const TRIPLE_TWO_POINTS = 200;
+    public const TRIPLE_TWO_POINTS = 200;
 
     public function calculatePoints(DiceCupEntity $cupEntity)
     {
@@ -67,7 +67,7 @@ class PointsService
     {
         $count = [];
         foreach ($dices as $dice) {
-            if (!isset($count[$dice])) {
+            if (! isset($count[$dice])) {
                 $count[$dice] = 1;
             } else {
                 $count[$dice]++;
@@ -133,7 +133,6 @@ class PointsService
         $diffKeys = array_diff_key($diceValues, array_flip($allowedKeys));
         $moreThan1And5 = count($diffKeys) > 0;
 
-
         foreach ($diceValues as $eye => $amount) {
             if ($eye === 1) {
                 $cupEntity->addTmpPoints($amount * self::FACTOR_100);
@@ -149,7 +148,7 @@ class PointsService
                         }
                     }
                 }
-                if (!$moreThan1And5) {
+                if (! $moreThan1And5) {
                     $cupEntity->addTmpPoints($amount * self::FACTOR_50);
                     $this->setEyeNull($eye, $cupEntity);
                 }
@@ -190,7 +189,7 @@ class PointsService
     public static function pointsArray(array $pointsArray, $points)
     {
         if (isset($pointsArray[$points])) {
-            $pointsArray[$points] += 1;
+            ++$pointsArray[$points];
         } else {
             $pointsArray[$points] = 1;
         }

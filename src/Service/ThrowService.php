@@ -53,7 +53,7 @@ class ThrowService
         return random_int(1, 6);
     }
 
-    public function anotherThrow(DiceCupEntity $cupEntity,int $prePoints): bool
+    public function anotherThrow(DiceCupEntity $cupEntity, int $prePoints): bool
     {
         $tmpPoints = $cupEntity->getTmpPoints();
         if ($tmpPoints - $prePoints === 0) {
