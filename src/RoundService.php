@@ -4,74 +4,40 @@ declare(strict_types=1);
 
 namespace Madmaxi\Farkle;
 
+use Madmaxi\Farkle\Service\ThrowService;
+
 class RoundService
 {
-    const THRESHOLD_POINTS = 600;
-    const DICE_LEFT = 1;
-    const MINIMUM_POINTS = 400;
-
-    public function throwCup(DiceCupEntity $cupEntity)
-    {
-        $count = count($cupEntity->getValuesAsArray());
-        if ($count === 0) {
-            $cupEntity->setDice1($this->throw());
-            $cupEntity->setDice2($this->throw());
-            $cupEntity->setDice3($this->throw());
-            $cupEntity->setDice4($this->throw());
-            $cupEntity->setDice5($this->throw());
-            $cupEntity->setDice6($this->throw());
-            return $cupEntity;
-        }
-
-        if (!empty($cupEntity->getDice1())) {
-            $cupEntity->setDice1($this->throw());
-        }
-        if (!empty($cupEntity->getDice2())) {
-            $cupEntity->setDice2($this->throw());
-        }
-        if (!empty($cupEntity->getDice3())) {
-            $cupEntity->setDice3($this->throw());
-        }
-        if (!empty($cupEntity->getDice4())) {
-            $cupEntity->setDice4($this->throw());
-        }
-        if (!empty($cupEntity->getDice5())) {
-            $cupEntity->setDice5($this->throw());
-        }
-        if (!empty($cupEntity->getDice6())) {
-            $cupEntity->setDice6($this->throw());
-        }
-
-        return $cupEntity;
+    public function __construct(
+        private readonly PointsService $pointsService,
+        private readonly ThrowService $throwService,
+    ) {
     }
 
-    private function throw()
+    /*
+     * Point Threshold
+     * Dice left
+     * Ignore triple 2
+     * Ignore 50
+     */
+
+    public function doARound(DiceCupEntity $cupEntity): int
     {
-        return random_int(1, 6);
-    }
-
-    public function anotherRound(DiceCupEntity $cupEntity): bool
-    {
-        $tmpPoints =$cupEntity->getTmpPoints();
-        if (count($cupEntity->getValuesAsArray()) === 0) {
-            return true;
+        $anotherThrow = true;
+        while ($anotherThrow) {
+            $prePoints = $cupEntity->getTmpPoints();
+            $this->throwService->throwCup($cupEntity);
+            $cupEntity = $this->pointsService->calculatePoints($cupEntity);
+            $anotherThrow = $this->throwService->anotherThrow($cupEntity, $prePoints);
         }
 
-        if (count($cupEntity->getValuesAsArray()) <= self::DICE_LEFT &&
-            $tmpPoints >= self::MINIMUM_POINTS) {
-            $cupEntity->setPoints($tmpPoints);
-            $cupEntity->setTmpPoints(0);
-            $cupEntity->setAllNull();
-            return false;
+        $points = 0;
+        if ($cupEntity->getTmpPoints() >= ThrowService::MINIMUM_POINTS) {
+            $points = $cupEntity->getTmpPoints();
+            $cupEntity->setPoints($points);
         }
+        $cupEntity->softResetCup();
 
-        if ($tmpPoints >= self::THRESHOLD_POINTS) {
-            $cupEntity->setPoints($tmpPoints);
-            $cupEntity->setTmpPoints(0);
-            $cupEntity->setAllNull();
-            return false;
-        }
-
-        return true;
+        return $points;
     }
 }

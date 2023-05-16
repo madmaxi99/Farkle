@@ -24,14 +24,6 @@ jobs:
       - name: Fetch develop branch
         if: "!contains(github.event.head_commit.message, 'no-changelog') &&github.ref != 'refs/heads/master' && github.ref != 'refs/heads/develop'"
         run: git fetch origin develop:origin/develop
-      - name: Check new changelog entry
-        if: "!contains(github.event.head_commit.message, 'no-changelog') &&github.ref != 'refs/heads/master' && github.ref != 'refs/heads/develop'"
-        run: |
-          git diff --name-status origin/develop | grep -e '^A\s*changelogs/unreleased/.*\.yml$' ||
-          {
-            echo -e '\e[41mFile for new changelog item is missing. \e[0m\nPlease add it to your branch with \e[1m/vendor/bin/changelogger new -u. \e[0m'
-            exit 1
-          }
 
   dependencies:
     runs-on: ubuntu-latest

@@ -15,46 +15,38 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'farkle:games')]
-class GamesCommand extends Command
+#[AsCommand(name: 'farkle:rounds')]
+class RoundsCommand extends Command
 {
-    public const GAME_WINNING_POINTS = 10000;
-
     public function __construct(
         private readonly RoundService $roundService,
     ) {
         parent::__construct();
     }
 
+
     protected function configure()
     {
-        $this->addArgument('games', InputArgument::REQUIRED, 'NUmber of games');
+        $this->addArgument('rounds', InputArgument::REQUIRED, 'NUmber of games');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $games = (int) $input->getArgument('games');
+        $rounds = (int) $input->getArgument('rounds');
         $progressBar = ProgressbarService::getProgressbar($output);
 
-        $totalRounds = 0;
-        $tp = 0;
+        $highestPoints = 0;
+        $totalPoints = 0;
         $pointsArray = [];
-        for ($i = 0; $i < $games; $i++) {
-            $totalPoints = 0;
-            $rounds = 0;
+        for ($i = 0; $i < $rounds; $i++) {
             $cupEntity = new DiceCupEntity();
+            $points = $this->roundService->doARound($cupEntity);
 
-            while ($totalPoints <= self::GAME_WINNING_POINTS) {
-                $points = $this->roundService->doARound($cupEntity);
+            $pointsArray = PointsService::pointsArray($pointsArray, $points);
+            $highestPoints = PointsService::highestPoints($highestPoints, $points);
+            $totalPoints += $points;
 
-                $totalPoints += $points;
-                $rounds++;
-                $pointsArray = PointsService::pointsArray($pointsArray, $points);
-            }
-            $tp += $totalPoints;
-            $totalRounds += $rounds;
-
-            ProgressbarService::nextRound($games, $i, $progressBar);
+            ProgressbarService::nextRound($rounds, $i, $progressBar);
         }
         $progressBar->finish();
         $output->writeln('');
@@ -71,12 +63,11 @@ class GamesCommand extends Command
         $table->render();
 
         $conclusion = sprintf(
-            '%s Total Rounds: %s, Avg. Rounds: %s, Avg. Points: %s, ZeroGames: %d%%',
+            '%s Highest Points: %s, Avg. Points: %s, ZeroGames: %s%%',
             PHP_EOL,
-            $totalRounds,
-            $totalRounds / $games,
-            $tp / $totalRounds,
-            ($zeroGames / $totalRounds) * 100,
+            $highestPoints,
+            $totalPoints / $rounds,
+            ($zeroGames / $rounds) * 100,
         );
         $output->writeln($conclusion);
         return self::SUCCESS;

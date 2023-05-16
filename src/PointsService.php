@@ -6,32 +6,31 @@ namespace Madmaxi\Farkle;
 
 class PointsService
 {
+    public const SMALL_FLUSH_A = [1, 2, 3, 4, 5];
+    public const SMALL_FLUSH_B = [2, 3, 4, 5, 6];
+    public const BIG_FLUSH = [1, 2, 3, 4, 5, 6];
+    public const FACTOR_100 = 100;
+    public const FACTOR_50 = 50;
+    public const TRIPLE_TWO_POINTS = 200;
 
-    const SMALL_FLUSH_A = [1, 2, 3, 4, 5];
-    const SMALL_FLUSH_B = [2, 3, 4, 5, 6];
-    const BIG_FLUSH = [1, 2, 3, 4, 5, 6];
-    const FACTOR_100 = 100;
-    const FACTOR_50 = 50;
-
-    public function calculatePoints(DiceCupEntity $cupEntity): int
+    public function calculatePoints(DiceCupEntity $cupEntity)
     {
-        $valuesAsArray = $cupEntity->getValuesAsArray();
-        $points = $cupEntity->getTmpPoints();
-        if (count($valuesAsArray) === 6) {
-            $this->detectFlush($cupEntity);
-            $this->detectTriplePairs($cupEntity);
-        }
+        $startPoints = $cupEntity->getTmpPoints();
+        $this->detectFlush($cupEntity);
+        $this->detectTriplePairs($cupEntity);
         $this->detectMultiple($cupEntity);
-        $this->detectSingle($cupEntity);
-
-        return $cupEntity->getTmpPoints() - $points;
+        $this->detectSingle($cupEntity, $startPoints);
+        if ($startPoints === $cupEntity->getTmpPoints()) {
+            $this->detectTripleTwo($cupEntity);
+        }
+        return $cupEntity;
     }
 
     public function detectFlush(DiceCupEntity $cupEntity): DiceCupEntity
     {
         $diceValues = $cupEntity->getValuesAsArray();
-
         asort($diceValues);
+
         $filterValues = array_values(array_unique($diceValues));
 
         if (count($filterValues) === 6) {
@@ -68,7 +67,7 @@ class PointsService
     {
         $count = [];
         foreach ($dices as $dice) {
-            if (!isset($count[$dice])) {
+            if (! isset($count[$dice])) {
                 $count[$dice] = 1;
             } else {
                 $count[$dice]++;
@@ -97,7 +96,6 @@ class PointsService
     public function detectMultiple(DiceCupEntity $cupEntity): DiceCupEntity
     {
         $diceValues = $this->invertArray($cupEntity->getValuesAsArray());
-        $points = 0;
         foreach ($diceValues as $eye => $amount) {
             if ($eye === 1) {
                 $eye = 10;
@@ -117,7 +115,7 @@ class PointsService
                 $this->setEyeNull($eye, $cupEntity);
                 break;
             }
-            if ($amount === 3) {
+            if ($amount === 3 && $eye !== 2) {
                 $cupEntity->addTmpPoints($eye * self::FACTOR_100);
                 $this->setEyeNull($eye, $cupEntity);
             }
@@ -126,9 +124,14 @@ class PointsService
         return $cupEntity;
     }
 
-    public function detectSingle(DiceCupEntity $cupEntity): DiceCupEntity
+    public function detectSingle(DiceCupEntity $cupEntity, int $startPoints): DiceCupEntity
     {
-        $diceValues = $this->invertArray($cupEntity->getValuesAsArray());
+        $valuesAsArray = $cupEntity->getValuesAsArray();
+        $diceValues = $this->invertArray($valuesAsArray);
+
+        $allowedKeys = [1, 5];
+        $diffKeys = array_diff_key($diceValues, array_flip($allowedKeys));
+        $moreThan1And5 = count($diffKeys) > 0;
 
         foreach ($diceValues as $eye => $amount) {
             if ($eye === 1) {
@@ -136,8 +139,19 @@ class PointsService
                 $this->setEyeNull($eye, $cupEntity);
             }
             if ($eye === 5) {
-                $cupEntity->addTmpPoints($amount * self::FACTOR_50);
-                $this->setEyeNull($eye, $cupEntity);
+                if ($cupEntity->getTmpPoints() === $startPoints && $moreThan1And5) {
+                    $cupEntity->addTmpPoints(self::FACTOR_50);
+                    foreach ($valuesAsArray as $dice => $value) {
+                        if ($value === 5) {
+                            $cupEntity->{'set' . ($dice)}(null);
+                            break;
+                        }
+                    }
+                }
+                if (! $moreThan1And5) {
+                    $cupEntity->addTmpPoints($amount * self::FACTOR_50);
+                    $this->setEyeNull($eye, $cupEntity);
+                }
             }
         }
         return $cupEntity;
@@ -154,5 +168,40 @@ class PointsService
                 $cupEntity->{'set' . ($dice)}(null);
             }
         }
+    }
+
+    public function detectTripleTwo(DiceCupEntity $cupEntity): DiceCupEntity
+    {
+        $diceValues = $this->invertArray($cupEntity->getValuesAsArray());
+        foreach ($diceValues as $eye => $amount) {
+            if ($eye !== 2) {
+                continue;
+            }
+            if ($amount === 3) {
+                $cupEntity->addTmpPoints(self::TRIPLE_TWO_POINTS);
+                $this->setEyeNull($eye, $cupEntity);
+            }
+        }
+
+        return $cupEntity;
+    }
+
+    public static function pointsArray(array $pointsArray, $points)
+    {
+        if (isset($pointsArray[$points])) {
+            ++$pointsArray[$points];
+        } else {
+            $pointsArray[$points] = 1;
+        }
+
+        return $pointsArray;
+    }
+
+    public static function highestPoints(int $highScore, int $newScore)
+    {
+        if ($highScore < $newScore) {
+            $highScore = $newScore;
+        }
+        return $highScore;
     }
 }

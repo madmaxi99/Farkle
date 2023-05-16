@@ -11,12 +11,12 @@ class DiceCupEntity
 //    const DICE_3 = 2;
 //    const DICE_4 = 3;
 //    const DICE_5 = 4;
-    const DICE_1 = 'dice1';
-    const DICE_2 = 'dice2';
-    const DICE_3 = 'dice3';
-    const DICE_4 = 'dice4';
-    const DICE_5 = 'dice5';
-    const DICE_6 = 'dice6';
+    public const DICE_1 = 'dice1';
+    public const DICE_2 = 'dice2';
+    public const DICE_3 = 'dice3';
+    public const DICE_4 = 'dice4';
+    public const DICE_5 = 'dice5';
+    public const DICE_6 = 'dice6';
 
     private ?int $dice1 = null;
     private ?int $dice2 = null;
@@ -155,5 +155,12 @@ class DiceCupEntity
         $this->dice4 = null;
         $this->dice5 = null;
         $this->dice6 = null;
+    }
+
+    public function softResetCup(): self
+    {
+        $this->tmpPoints = 0;
+        $this->setAllNull();
+        return $this;
     }
 }
